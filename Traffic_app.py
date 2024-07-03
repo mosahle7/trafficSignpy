@@ -1,4 +1,5 @@
 from flask import *
+import tensorflow as tf
 import os
 from werkzeug.utils import secure_filename
 from keras.models import load_model
@@ -53,13 +54,14 @@ classes = { 0:'Speed limit (20km/h)',
             42:'End no passing vehicle > 3.5 tons' }
 
 def image_processing(img):
-    model = load_model('model/model.keras')
+    model = tf.keras.models.load_model('model/model.keras')
     data=[]
     image = Image.open(img)
     image = image.resize((30,30))
     data.append(np.array(image))
     X_test=np.array(data)
-    Y_pred = model.predict_classes(X_test)
+    # Y_pred = model.predict_classes(X_test)
+    Y_pred = np.argmax(model.predict(X_test), axis=-1)
     return Y_pred
 
 @app.route('/')
@@ -83,4 +85,4 @@ def upload():
     return None
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
